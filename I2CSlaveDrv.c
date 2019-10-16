@@ -190,12 +190,12 @@ void GestionReceptionI2C(unsigned char first, unsigned char data)
       ucRAMBuffer[0] = data;
       nbre_octets_a_recevoir = data;
       nbre_octets_recus = 0;
+      etat = RX_ADRESSE_REGSTRE; 
+      checksum = data;
       // Cas anormal, on ne peut pas recevoir plus de données que la taille du buffer de réception.
       if (nbre_octets_a_recevoir > SIZE_RAM_BUFFER) { etat = RX_ERREUR; }
       // Cas anormal, il faut  recevoir au moins 3 octets (l'adresse du registre + valeur + checksum)
       if (nbre_octets_a_recevoir < 3) { etat = RX_ERREUR; }
-      etat = RX_ADRESSE_REGSTRE; 
-      checksum += data;
     break;   
     // _________________________________
     case RX_ADRESSE_REGSTRE : 
@@ -208,9 +208,9 @@ void GestionReceptionI2C(unsigned char first, unsigned char data)
     case RX_VALEURS_REGISTRES : 
       ucRAMBuffer[nbre_octets_recus + 1] = data;
       nbre_octets_recus++;
+      checksum += data;  
       if (nbre_octets_recus >= (nbre_octets_a_recevoir-1)) {
          etat = RX_CHECKSUM; 
-        checksum += data;  
       }           
     break;   
     // _________________________________
@@ -244,9 +244,9 @@ void FinReceptionTrameValideI2C(void)
  
  indexReg = ucRAMBuffer[1];
  for (i=0; i<(ucRAMBuffer[0]-2); i++) { // -2 car il faut supprimer le checksum et le numéro de registre
-    if (dsPIC_reg[indexReg].type_read_write == READ_WRITE) {
-       dsPIC_reg[indexReg].val = ucRAMBuffer[i+2];
-       dsPIC_reg[indexReg].new_data = 1; // indique à la tâche de fond que le registe a été modifié     
+    if (dsPIC_reg[indexReg+i].type_read_write == READ_WRITE) {
+       dsPIC_reg[indexReg+i].val = ucRAMBuffer[i+2];
+       dsPIC_reg[indexReg+i].new_data = 1; // indique à la tâche de fond que le registe a été modifié     
     }
     // else : le registre est read only, pas d'écriture     
  }

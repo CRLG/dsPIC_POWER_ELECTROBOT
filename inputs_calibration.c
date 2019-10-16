@@ -22,12 +22,12 @@ void Init_Calibration()
 // U_phys = a*raw_value + b   U_phys [mV] / raw [0-4096]]
 // a = (U_phys1 - U_phys2) / (raw1 - raw2)
 // b = U_phys1 - raw1 * a
-static float BatteryVoltage_CoefA;
+static float BatteryVoltage_CoefA = 1.23f;
 static float BatteryVoltage_CoefB;
 
 void calib_computeCoefsBatteryVoltage()
 {
-    BatteryVoltage_CoefA = (float)(EEPROM_values[EEPADDR_CALIB_BATT_VOLTAGE_POINT_1_PHYS_mV] - EEPROM_values[EEPADDR_CALIB_BATT_VOLTAGE_POINT_2_PHYS_mV]) / (EEPROM_values[EEPADDR_CALIB_BATT_VOLTAGE_POINT_1_RAW] - EEPROM_values[EEPADDR_CALIB_BATT_VOLTAGE_POINT_2_RAW]);
+    BatteryVoltage_CoefA = ((float)EEPROM_values[EEPADDR_CALIB_BATT_VOLTAGE_POINT_1_PHYS_mV] - (float)EEPROM_values[EEPADDR_CALIB_BATT_VOLTAGE_POINT_2_PHYS_mV]) / ((float)EEPROM_values[EEPADDR_CALIB_BATT_VOLTAGE_POINT_1_RAW] - (float)EEPROM_values[EEPADDR_CALIB_BATT_VOLTAGE_POINT_2_RAW]);
     BatteryVoltage_CoefB = (float)EEPROM_values[EEPADDR_CALIB_BATT_VOLTAGE_POINT_1_PHYS_mV] - (BatteryVoltage_CoefA * EEPROM_values[EEPADDR_CALIB_BATT_VOLTAGE_POINT_1_RAW]);
 }
 

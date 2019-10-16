@@ -114,7 +114,8 @@ unsigned int value1, value2, value3;
 
 int main ( void )
 {
- unsigned char ucval, ucval2;
+ unsigned char ucval;
+ unsigned short usval;
  unsigned short flash_speed;
  unsigned char perteComMaster=0;
 
@@ -159,9 +160,12 @@ LEAVE_CRITICAL_SECTION_I2C()
 			timer_expired = 0;
 		}
 
+        // TODO : 
+        // Sur perte de communication, couper toutes les sorties
+        
 		//AnalogInput[0] = getAnalog(0);
         CalculMoyenneGlissante(&Moyenne_BatteryVoltage, getAnalog(0));
-        AnalogInput[0] = Moyenne_BatteryVoltage.value;
+        AnalogInput[0] = rawToPhysBatteryVoltage(Moyenne_BatteryVoltage.value);
         
 		//AnalogInput[1] = getAnalog(1);
         CalculMoyenneGlissante(&Moyenne_GlobalCurrent, getAnalog(1));
@@ -264,81 +268,89 @@ LEAVE_CRITICAL_SECTION_I2C()
         // Recherche une nouvelle demande de calibration 
         if (dsPIC_reg[REG_CALIB_BATTERY_VOLTAGE_PHYS_POINT_1_H].new_data && dsPIC_reg[REG_CALIB_BATTERY_VOLTAGE_PHYS_POINT_1_L].new_data){
 ENTER_CRITICAL_SECTION_I2C()            
-            ucval = dsPIC_reg[REG_CALIB_BATTERY_VOLTAGE_PHYS_POINT_1_H].val<<8 + dsPIC_reg[REG_CALIB_BATTERY_VOLTAGE_PHYS_POINT_1_L].val ;
+            usval = ((dsPIC_reg[REG_CALIB_BATTERY_VOLTAGE_PHYS_POINT_1_H].val)<<8) + dsPIC_reg[REG_CALIB_BATTERY_VOLTAGE_PHYS_POINT_1_L].val ;
             dsPIC_reg[REG_CALIB_BATTERY_VOLTAGE_PHYS_POINT_1_H].new_data = 0;
             dsPIC_reg[REG_CALIB_BATTERY_VOLTAGE_PHYS_POINT_1_L].new_data = 0;
 LEAVE_CRITICAL_SECTION_I2C()
-            calib_setBatteryVoltagePoint1(Moyenne_BatteryVoltage.value, ucval);            
+            ControleSTOR1(1);
+            calib_setBatteryVoltagePoint1(Moyenne_BatteryVoltage.value, usval);            
          }
         // _____________________________________________________
         // Recherche une nouvelle demande de calibration 
         if (dsPIC_reg[REG_CALIB_BATTERY_VOLTAGE_PHYS_POINT_2_H].new_data && dsPIC_reg[REG_CALIB_BATTERY_VOLTAGE_PHYS_POINT_2_L].new_data){
 ENTER_CRITICAL_SECTION_I2C()            
-            ucval = dsPIC_reg[REG_CALIB_BATTERY_VOLTAGE_PHYS_POINT_2_H].val<<8 + dsPIC_reg[REG_CALIB_BATTERY_VOLTAGE_PHYS_POINT_2_L].val ;
+            usval = ((dsPIC_reg[REG_CALIB_BATTERY_VOLTAGE_PHYS_POINT_2_H].val)<<8) + dsPIC_reg[REG_CALIB_BATTERY_VOLTAGE_PHYS_POINT_2_L].val ;
             dsPIC_reg[REG_CALIB_BATTERY_VOLTAGE_PHYS_POINT_2_H].new_data = 0;
             dsPIC_reg[REG_CALIB_BATTERY_VOLTAGE_PHYS_POINT_2_L].new_data = 0;
 LEAVE_CRITICAL_SECTION_I2C()
-            calib_setBatteryVoltagePoint2(Moyenne_BatteryVoltage.value, ucval);            
+            ControleSTOR2(1);
+            calib_setBatteryVoltagePoint2(Moyenne_BatteryVoltage.value, usval);            
          }
         // _____________________________________________________
         // Recherche une nouvelle demande de calibration 
         if (dsPIC_reg[REG_CALIB_GLOBAL_CURRENT_PHYS_POINT_1_H].new_data && dsPIC_reg[REG_CALIB_GLOBAL_CURRENT_PHYS_POINT_1_L].new_data){
 ENTER_CRITICAL_SECTION_I2C()            
-            ucval = dsPIC_reg[REG_CALIB_GLOBAL_CURRENT_PHYS_POINT_1_H].val<<8 + dsPIC_reg[REG_CALIB_GLOBAL_CURRENT_PHYS_POINT_1_L].val ;
+            usval = ((dsPIC_reg[REG_CALIB_GLOBAL_CURRENT_PHYS_POINT_1_H].val)<<8) + dsPIC_reg[REG_CALIB_GLOBAL_CURRENT_PHYS_POINT_1_L].val ;
             dsPIC_reg[REG_CALIB_GLOBAL_CURRENT_PHYS_POINT_1_H].new_data = 0;
             dsPIC_reg[REG_CALIB_GLOBAL_CURRENT_PHYS_POINT_1_L].new_data = 0;
 LEAVE_CRITICAL_SECTION_I2C()
-            calib_setGlobalCurrentPoint1(Moyenne_GlobalCurrent.value, ucval);            
+            ControleSTOR3(1);
+            calib_setGlobalCurrentPoint1(Moyenne_GlobalCurrent.value, usval);            
          }
         // _____________________________________________________
         // Recherche une nouvelle demande de calibration 
         if (dsPIC_reg[REG_CALIB_GLOBAL_CURRENT_PHYS_POINT_2_H].new_data && dsPIC_reg[REG_CALIB_GLOBAL_CURRENT_PHYS_POINT_2_L].new_data){
 ENTER_CRITICAL_SECTION_I2C()            
-            ucval = dsPIC_reg[REG_CALIB_GLOBAL_CURRENT_PHYS_POINT_2_H].val<<8 + dsPIC_reg[REG_CALIB_GLOBAL_CURRENT_PHYS_POINT_2_L].val ;
+            usval = ((dsPIC_reg[REG_CALIB_GLOBAL_CURRENT_PHYS_POINT_2_H].val)<<8) + dsPIC_reg[REG_CALIB_GLOBAL_CURRENT_PHYS_POINT_2_L].val ;
             dsPIC_reg[REG_CALIB_GLOBAL_CURRENT_PHYS_POINT_2_H].new_data = 0;
             dsPIC_reg[REG_CALIB_GLOBAL_CURRENT_PHYS_POINT_2_L].new_data = 0;
 LEAVE_CRITICAL_SECTION_I2C()
-            calib_setGlobalCurrentPoint2(Moyenne_GlobalCurrent.value, ucval);            
+            ControleSTOR4(1);
+            calib_setGlobalCurrentPoint2(Moyenne_GlobalCurrent.value, usval);            
          }
         // _____________________________________________________
         // Recherche une nouvelle demande de calibration 
         if (dsPIC_reg[REG_CALIB_CURRENT_OUT1_PHYS_POINT_1_H].new_data && dsPIC_reg[REG_CALIB_CURRENT_OUT1_PHYS_POINT_1_L].new_data){
 ENTER_CRITICAL_SECTION_I2C()            
-            ucval = dsPIC_reg[REG_CALIB_CURRENT_OUT1_PHYS_POINT_1_H].val<<8 + dsPIC_reg[REG_CALIB_CURRENT_OUT1_PHYS_POINT_1_L].val ;
+            usval = ((dsPIC_reg[REG_CALIB_CURRENT_OUT1_PHYS_POINT_1_H].val)<<8) + dsPIC_reg[REG_CALIB_CURRENT_OUT1_PHYS_POINT_1_L].val ;
             dsPIC_reg[REG_CALIB_CURRENT_OUT1_PHYS_POINT_1_H].new_data = 0;
             dsPIC_reg[REG_CALIB_CURRENT_OUT1_PHYS_POINT_1_L].new_data = 0;
 LEAVE_CRITICAL_SECTION_I2C()
-            calib_setCurrentOut1Point1(Moyenne_CurrentOut1.value, ucval);            
+            ControleSTOR5(1);
+            calib_setCurrentOut1Point1(Moyenne_CurrentOut1.value, usval);            
          }
         // _____________________________________________________
         // Recherche une nouvelle demande de calibration 
         if (dsPIC_reg[REG_CALIB_CURRENT_OUT1_PHYS_POINT_2_H].new_data && dsPIC_reg[REG_CALIB_CURRENT_OUT1_PHYS_POINT_2_L].new_data){
 ENTER_CRITICAL_SECTION_I2C()            
-            ucval = dsPIC_reg[REG_CALIB_CURRENT_OUT1_PHYS_POINT_2_H].val<<8 + dsPIC_reg[REG_CALIB_CURRENT_OUT1_PHYS_POINT_2_L].val ;
+            usval = ((dsPIC_reg[REG_CALIB_CURRENT_OUT1_PHYS_POINT_2_H].val)<<8) + dsPIC_reg[REG_CALIB_CURRENT_OUT1_PHYS_POINT_2_L].val ;
             dsPIC_reg[REG_CALIB_CURRENT_OUT1_PHYS_POINT_2_H].new_data = 0;
             dsPIC_reg[REG_CALIB_CURRENT_OUT1_PHYS_POINT_2_L].new_data = 0;
 LEAVE_CRITICAL_SECTION_I2C()
-            calib_setCurrentOut1Point2(Moyenne_CurrentOut1.value, ucval);            
+            ControleSTOR6(1);
+            calib_setCurrentOut1Point2(Moyenne_CurrentOut1.value, usval);            
          }
         // _____________________________________________________
         // Recherche une nouvelle demande de calibration 
         if (dsPIC_reg[REG_CALIB_CURRENT_OUT2_PHYS_POINT_1_H].new_data && dsPIC_reg[REG_CALIB_CURRENT_OUT2_PHYS_POINT_1_L].new_data){
 ENTER_CRITICAL_SECTION_I2C()            
-            ucval = dsPIC_reg[REG_CALIB_CURRENT_OUT2_PHYS_POINT_1_H].val<<8 + dsPIC_reg[REG_CALIB_CURRENT_OUT2_PHYS_POINT_1_L].val ;
+            usval = ((dsPIC_reg[REG_CALIB_CURRENT_OUT2_PHYS_POINT_1_H].val)<<8) + dsPIC_reg[REG_CALIB_CURRENT_OUT2_PHYS_POINT_1_L].val ;
             dsPIC_reg[REG_CALIB_CURRENT_OUT2_PHYS_POINT_1_H].new_data = 0;
             dsPIC_reg[REG_CALIB_CURRENT_OUT2_PHYS_POINT_1_L].new_data = 0;
 LEAVE_CRITICAL_SECTION_I2C()
-            calib_setCurrentOut2Point1(Moyenne_CurrentOut2.value, ucval);            
+            ControleSTOR7(1);
+            calib_setCurrentOut2Point1(Moyenne_CurrentOut2.value, usval);            
          }
         // _____________________________________________________
         // Recherche une nouvelle demande de calibration 
         if (dsPIC_reg[REG_CALIB_CURRENT_OUT2_PHYS_POINT_2_H].new_data && dsPIC_reg[REG_CALIB_CURRENT_OUT2_PHYS_POINT_2_L].new_data){
 ENTER_CRITICAL_SECTION_I2C()            
-            ucval = dsPIC_reg[REG_CALIB_CURRENT_OUT2_PHYS_POINT_2_H].val<<8 + dsPIC_reg[REG_CALIB_CURRENT_OUT2_PHYS_POINT_2_L].val ;
+            usval = ((dsPIC_reg[REG_CALIB_CURRENT_OUT2_PHYS_POINT_2_H].val)<<8) + dsPIC_reg[REG_CALIB_CURRENT_OUT2_PHYS_POINT_2_L].val ;
             dsPIC_reg[REG_CALIB_CURRENT_OUT2_PHYS_POINT_2_H].new_data = 0;
             dsPIC_reg[REG_CALIB_CURRENT_OUT2_PHYS_POINT_2_L].new_data = 0;
 LEAVE_CRITICAL_SECTION_I2C()
-            calib_setCurrentOut2Point2(Moyenne_CurrentOut2.value, ucval);            
+            ControleSTOR8(1);
+            calib_setCurrentOut2Point2(Moyenne_CurrentOut2.value, usval);            
          }
 	}
 }
@@ -487,7 +499,7 @@ void Init_Registers(void)
      dsPIC_reg[i].type_read_write   = READ_ONLY; 
   }
   // Les registres Read/write
-  for (i=REG_STOR_1; i<=REG_STOR_PGEC; i++) {
+  for (i=REG_STOR_1; i<MAX_REGISTRES_NUMBER; i++) {
     dsPIC_reg[i].type_read_write = READ_WRITE;     
   }
   

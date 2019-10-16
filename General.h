@@ -31,6 +31,7 @@ typedef  enum {
 
 
 typedef enum {
+    // Read Only registers
     REG_VERSION_SOFT_MAJ = 0,
     REG_VERSION_SOFT_MIN,
     REG_PTR_REG_LECTURE_I2C,
@@ -43,6 +44,7 @@ typedef enum {
     REG_EANA_MEAS_CURR_1_L,
     REG_EANA_MEAS_CURR_2_H,
     REG_EANA_MEAS_CURR_2_L,
+    // Read write registers
     REG_STOR_1,
     REG_STOR_2,
     REG_STOR_3,
