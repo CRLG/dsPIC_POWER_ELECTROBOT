@@ -61,7 +61,7 @@
 #endif
 
 // Uncomment the following line if using a device with Flash ECC feature
-#define __HAS_ECC	1
+//#define __HAS_ECC	1   // Nico : désactivation pour dsPIC33FJ128MC802
 
 // Uncomment the following line if using Auxiliary Flash for EEPROM Emulation
 //#define __AUXFLASH	1
