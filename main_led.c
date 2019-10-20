@@ -169,17 +169,17 @@ LEAVE_CRITICAL_SECTION_I2C()
         
 		//AnalogInput[1] = getAnalog(1);
         CalculMoyenneGlissante(&Moyenne_GlobalCurrent, getAnalog(1));
-        AnalogInput[1] = Moyenne_GlobalCurrent.value;
+        AnalogInput[1] = rawToPhysGlobalCurrent(Moyenne_GlobalCurrent.value);
                 
 		//AnalogInput[2] = getAnalog(4);
         //AnalogInput[2] = value3;
         //LectureEanaMoyennee(4);
         CalculMoyenneGlissante(&Moyenne_CurrentOut1, getAnalog(4));
-        AnalogInput[2] = Moyenne_CurrentOut1.value;
+        AnalogInput[2] = rawToPhysCurrentOut1(Moyenne_CurrentOut1.value);
 
         //AnalogInput[3] = getAnalog(5);
         CalculMoyenneGlissante(&Moyenne_CurrentOut2, getAnalog(5));
-        AnalogInput[3] = Moyenne_CurrentOut2.value;
+        AnalogInput[3] = rawToPhysCurrentOut2(Moyenne_CurrentOut2.value);
         
 ENTER_CRITICAL_SECTION_I2C()
         dsPIC_reg[REG_EANA_VBAT_H].val = AnalogInput[0]>>8;
@@ -508,6 +508,8 @@ void Init_Registers(void)
   dsPIC_reg[REG_VERSION_SOFT_MIN].val               = VERSION_SOFT_MIN;
   dsPIC_reg[REG_PTR_REG_LECTURE_I2C].val            = REG_EANA_VBAT_H;
   dsPIC_reg[REG_NBRE_REGISTRES_LECTURE_I2C].val     = 8; // Nombre de registres lus par le MBED lors d'une opération de lecture
+  dsPIC_reg[REG_EEPROM_WRITE_UNPROTECT].val = 0;  // EEPROM protégée en écriture
+
 }   
 
 
