@@ -29,6 +29,7 @@ typedef enum {
 }tEEPROM_addresses;
 
 #define EEPROM_MAGIC_NUMBER (0x5A96)
+#define EEPROM_WRITE_UNPROTECT (0x5A)
 
 // Functions prototypes
 void Init_EEPROM(); 

@@ -1,3 +1,4 @@
+#include "General.h"
 #include "eeprom.h"
 #include "DEE_Emulation_16-bit.h"
 
@@ -14,10 +15,10 @@ void forceEEPROMDefaultValues()
  EEPROM_values[EEPADDR_CALIB_BATT_VOLTAGE_POINT_2_RAW] = 0; //3097;
  EEPROM_values[EEPADDR_CALIB_BATT_VOLTAGE_POINT_2_PHYS_mV] = 0;// 15000;
 
- EEPROM_values[EEPADDR_CALIB_GLOBAL_CURRENT_POINT_1_RAW] = 0;
+ EEPROM_values[EEPADDR_CALIB_GLOBAL_CURRENT_POINT_1_RAW] = 2066;
  EEPROM_values[EEPADDR_CALIB_GLOBAL_CURRENT_POINT_1_PHYS_mA] = 0;
- EEPROM_values[EEPADDR_CALIB_GLOBAL_CURRENT_POINT_2_RAW] = 0;
- EEPROM_values[EEPADDR_CALIB_GLOBAL_CURRENT_POINT_2_PHYS_mA] = 0;
+ EEPROM_values[EEPADDR_CALIB_GLOBAL_CURRENT_POINT_2_RAW] = 2082;
+ EEPROM_values[EEPADDR_CALIB_GLOBAL_CURRENT_POINT_2_PHYS_mA] = 200;
 
  EEPROM_values[EEPADDR_CALIB_CURRENT_OUT1_POINT_1_RAW] = 0;
  EEPROM_values[EEPADDR_CALIB_CURRENT_OUT1_POINT_1_PHYS_mA] = 0;
@@ -49,13 +50,17 @@ void readEEPROM()
  // EEPROM corrupted or never initialized
  if (EEPROM_values[EEPADDR_MAGIC_NUMBER] != EEPROM_MAGIC_NUMBER) {
     forceEEPROMDefaultValues();
+    dsPIC_reg[REG_EEPROM_WRITE_UNPROTECT].val = EEPROM_WRITE_UNPROTECT;   // Autorise les écritures en EEPROM
     saveEEPROM();
+    dsPIC_reg[REG_EEPROM_WRITE_UNPROTECT].val = 0;  // Protège les écritures en EEPROM
  }
 }
 
 // ___________________________________________
 void saveEEPROM()
 {
+ // Vérifie si l'EEPROM est bien dévérouillée avant d'écrire
+ if (dsPIC_reg[REG_EEPROM_WRITE_UNPROTECT].val != EEPROM_WRITE_UNPROTECT) return;
  int i; 
  for (i=0; i<EEPROM_SIZE; i++) {
    DataEEWrite(EEPROM_values[i], i);
