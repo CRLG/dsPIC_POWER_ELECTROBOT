@@ -3,7 +3,9 @@
 
 // Structures and defines
 typedef enum {
-    EEPADDR_CALIB_BATT_VOLTAGE_POINT_1_RAW = 0,
+    EEPADDR_I2C_ADDRESS_8bits = 0,
+    
+    EEPADDR_CALIB_BATT_VOLTAGE_POINT_1_RAW,
     EEPADDR_CALIB_BATT_VOLTAGE_POINT_1_PHYS_mV,
     EEPADDR_CALIB_BATT_VOLTAGE_POINT_2_RAW,
     EEPADDR_CALIB_BATT_VOLTAGE_POINT_2_PHYS_mV,
@@ -30,12 +32,14 @@ typedef enum {
 
 #define EEPROM_MAGIC_NUMBER (0x5A96)
 #define EEPROM_WRITE_UNPROTECT (0x5A)
+#define EEPROM_RESET_FACTORY_CODE (0x69)
 
 // Functions prototypes
 void Init_EEPROM(); 
 void readEEPROM();
 void saveEEPROM();
 void forceEEPROMDefaultValues();
+void resetFactoryEEPROM();
 
 // External data
 extern unsigned short EEPROM_values[];

@@ -5,19 +5,8 @@
 #define VERSION_SOFT_MAJ    (1)
 #define VERSION_SOFT_MIN    (0)
 
-
-#define ADRESSE_I2C_dsPIC1	(0x54>>1)
-#define ADRESSE_I2C_dsPIC2	(0x56>>1)
-
-
-#define dsPIC1
-#ifdef dsPIC1
-    #define ADRESSE_I2C_dsPIC ADRESSE_I2C_dsPIC1
-#else
-    #define ADRESSE_I2C_dsPIC ADRESSE_I2C_dsPIC2
-#endif
-
-
+#define I2C_DEFAULT_ADDRESS_8bits (0x54)
+void i2c1_init(unsigned char i2c_addr);
 
 
 #define ENTER_CRITICAL_SECTION_I2C() { _SI2C1IE = 0; }
@@ -72,7 +61,10 @@ typedef enum {
     REG_CALIB_CURRENT_OUT2_PHYS_POINT_2_H,
     REG_CALIB_CURRENT_OUT2_PHYS_POINT_2_L,
             
+    REG_I2C_8BITS_ADDRESS,
     REG_EEPROM_WRITE_UNPROTECT,
+    REG_EEPROM_RESET_FACTORY,
+    // _____________________________
     MAX_REGISTRES_NUMBER
     
 }T_REG_ADDRESS;    

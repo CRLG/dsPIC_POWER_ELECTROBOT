@@ -70,8 +70,10 @@ void FinReceptionTrameValideI2C(void);
 
 /*****************************************************************
 		Init I2C1 Bus
+ * Param i2c_addr is 8 bits address. 
+ * dsPIC register expect 7 bits address
 *****************************************************************/
-void i2c1_init(void)
+void i2c1_init(unsigned char i2c_addr)
 {
 	#if !defined(USE_I2C_Clock_Stretch)
 		I2C1CON = 0x8000;	//Enable I2C1 module
@@ -80,7 +82,7 @@ void i2c1_init(void)
 	#endif
 	
 
-	I2C1ADD = ADRESSE_I2C_dsPIC;			// 7-bit I2C slave address must be initialised here.
+	I2C1ADD = i2c_addr>>1; // 7-bit I2C slave address must be initialised in register.
 	
 	IFS1=0;
 	Flag.AddrFlag = 0;	//Initlize AddFlag

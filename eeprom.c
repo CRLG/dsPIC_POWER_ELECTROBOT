@@ -9,7 +9,8 @@ void forceEEPROMDefaultValues()
 {
  EEPROM_values[EEPADDR_MAGIC_NUMBER] = EEPROM_MAGIC_NUMBER;
 
- // TODO : mettre des valeurs par défaut cohérentes prises sur une carte
+ EEPROM_values[EEPADDR_I2C_ADDRESS_8bits] = I2C_DEFAULT_ADDRESS_8bits;
+
  EEPROM_values[EEPADDR_CALIB_BATT_VOLTAGE_POINT_1_RAW] = 1648;
  EEPROM_values[EEPADDR_CALIB_BATT_VOLTAGE_POINT_1_PHYS_mV] = 8000;
  EEPROM_values[EEPADDR_CALIB_BATT_VOLTAGE_POINT_2_RAW] = 3097;
@@ -40,6 +41,18 @@ void Init_EEPROM()
  readEEPROM(); 
 }
 
+
+// ___________________________________________
+void resetFactoryEEPROM()
+{
+  unsigned char protect_code_save;
+  protect_code_save = dsPIC_reg[REG_EEPROM_WRITE_UNPROTECT].val;
+  forceEEPROMDefaultValues();
+  dsPIC_reg[REG_EEPROM_WRITE_UNPROTECT].val = EEPROM_WRITE_UNPROTECT;   // Autorise les écritures en EEPROM
+  saveEEPROM();
+  dsPIC_reg[REG_EEPROM_WRITE_UNPROTECT].val = protect_code_save;  // Protège les écritures en EEPROM
+}
+
 // ___________________________________________
 void readEEPROM()
 {
@@ -49,10 +62,7 @@ void readEEPROM()
  }
  // EEPROM corrupted or never initialized
  if (EEPROM_values[EEPADDR_MAGIC_NUMBER] != EEPROM_MAGIC_NUMBER) {
-    forceEEPROMDefaultValues();
-    dsPIC_reg[REG_EEPROM_WRITE_UNPROTECT].val = EEPROM_WRITE_UNPROTECT;   // Autorise les écritures en EEPROM
-    saveEEPROM();
-    dsPIC_reg[REG_EEPROM_WRITE_UNPROTECT].val = 0;  // Protège les écritures en EEPROM
+     resetFactoryEEPROM();
  }
 }
 

@@ -126,7 +126,7 @@ int main ( void )
  Init_Registers();
  Init_Analog();
  InitTimer1();
- i2c1_init();
+ i2c1_init(dsPIC_reg[REG_I2C_8BITS_ADDRESS].val);  // restitution de la valeur configurée en EEPROM
  
  // A l'init, tous les moteurs sont éteints
  ControleSTOR1(0);
@@ -191,7 +191,16 @@ ENTER_CRITICAL_SECTION_I2C()
         dsPIC_reg[REG_EANA_MEAS_CURR_2_H].val = AnalogInput[3]>>8;
         dsPIC_reg[REG_EANA_MEAS_CURR_2_L].val = AnalogInput[3];
 LEAVE_CRITICAL_SECTION_I2C()
-
+        // _____________________________________________________
+        // Configuration adresse I2C
+        if (dsPIC_reg[REG_I2C_8BITS_ADDRESS].new_data) {
+ENTER_CRITICAL_SECTION_I2C()            
+            ucval = dsPIC_reg[REG_I2C_8BITS_ADDRESS].val;
+            dsPIC_reg[REG_I2C_8BITS_ADDRESS].new_data = 0;
+LEAVE_CRITICAL_SECTION_I2C()
+            EEPROM_values[EEPADDR_I2C_ADDRESS_8bits] = ucval;  // un reboot de la carte sera nécessaire. Pas de prise en compte immédiat pour ce changement
+            saveEEPROM();  // l'EEPROM devra avoir été dévérouillée en écriture préalablement
+         }    
         // _____________________________________________________
         // Recherche une nouvelle demande de sortie TOR
         if (dsPIC_reg[REG_STOR_1].new_data) {
@@ -508,8 +517,8 @@ void Init_Registers(void)
   dsPIC_reg[REG_VERSION_SOFT_MIN].val               = VERSION_SOFT_MIN;
   dsPIC_reg[REG_PTR_REG_LECTURE_I2C].val            = REG_EANA_VBAT_H;
   dsPIC_reg[REG_NBRE_REGISTRES_LECTURE_I2C].val     = 8; // Nombre de registres lus par le MBED lors d'une opération de lecture
-  dsPIC_reg[REG_EEPROM_WRITE_UNPROTECT].val = 0;  // EEPROM protégée en écriture
-
+  dsPIC_reg[REG_EEPROM_WRITE_UNPROTECT].val         = 0;  // EEPROM protégée en écriture
+  dsPIC_reg[REG_I2C_8BITS_ADDRESS].val              = EEPROM_values[EEPADDR_I2C_ADDRESS_8bits]; // restitution de la valeur configurée en eeprom
 }   
 
 

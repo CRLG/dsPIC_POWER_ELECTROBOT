@@ -50,7 +50,6 @@
 //#define USE_I2C_Clock_Stretch	//uncomment this line if you want clock stretching featue
 								//to be enabled
 //Functions prototype
-void i2c1_init(void);
 void __attribute__((interrupt,no_auto_psv)) _SI2C1Interrupt(void);
 
 extern unsigned char RAMBuffer[256];	//RAM area which will work as EEPROM for Master I2C device
