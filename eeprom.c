@@ -45,12 +45,8 @@ void Init_EEPROM()
 // ___________________________________________
 void resetFactoryEEPROM()
 {
-  unsigned char protect_code_save;
-  protect_code_save = dsPIC_reg[REG_EEPROM_WRITE_UNPROTECT].val;
   forceEEPROMDefaultValues();
-  dsPIC_reg[REG_EEPROM_WRITE_UNPROTECT].val = EEPROM_WRITE_UNPROTECT;   // Autorise les écritures en EEPROM
   saveEEPROM();
-  dsPIC_reg[REG_EEPROM_WRITE_UNPROTECT].val = protect_code_save;  // Protège les écritures en EEPROM
 }
 
 // ___________________________________________
@@ -62,7 +58,9 @@ void readEEPROM()
  }
  // EEPROM corrupted or never initialized
  if (EEPROM_values[EEPADDR_MAGIC_NUMBER] != EEPROM_MAGIC_NUMBER) {
-     resetFactoryEEPROM();
+    dsPIC_reg[REG_EEPROM_WRITE_UNPROTECT].val = EEPROM_WRITE_UNPROTECT;   // Autorise les écritures en EEPROM
+    resetFactoryEEPROM();
+    dsPIC_reg[REG_EEPROM_WRITE_UNPROTECT].val = 0;  // Protège les écritures en EEPROM
  }
 }
 

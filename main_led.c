@@ -202,13 +202,25 @@ LEAVE_CRITICAL_SECTION_I2C()
             saveEEPROM();  // l'EEPROM devra avoir été dévérouillée en écriture préalablement
          }    
         // _____________________________________________________
-        // Recherche une nouvelle demande de sortie TOR
-        if (dsPIC_reg[REG_STOR_1].new_data) {
+        // Configuration adresse I2C
+        if (dsPIC_reg[REG_I2C_8BITS_ADDRESS].new_data) {
 ENTER_CRITICAL_SECTION_I2C()            
-            ucval = dsPIC_reg[REG_STOR_1].val;
-            dsPIC_reg[REG_STOR_1].new_data = 0;
+            ucval = dsPIC_reg[REG_I2C_8BITS_ADDRESS].val;
+            dsPIC_reg[REG_I2C_8BITS_ADDRESS].new_data = 0;
 LEAVE_CRITICAL_SECTION_I2C()
-            ControleSTOR1(ucval);            
+            EEPROM_values[EEPADDR_I2C_ADDRESS_8bits] = ucval;  // un reboot de la carte sera nécessaire. Pas de prise en compte immédiat pour ce changement
+            saveEEPROM();  // l'EEPROM devra avoir été dévérouillée en écriture préalablement
+         }    
+        // _____________________________________________________
+        // Recherche une nouvelle demande de RAZ EEPROM à la configuration par défaut
+        if (dsPIC_reg[REG_EEPROM_RESET_FACTORY].new_data) {
+ENTER_CRITICAL_SECTION_I2C()            
+            ucval = dsPIC_reg[REG_EEPROM_RESET_FACTORY].val;
+            dsPIC_reg[REG_EEPROM_RESET_FACTORY].new_data = 0;
+LEAVE_CRITICAL_SECTION_I2C()
+            if (ucval == EEPROM_RESET_FACTORY_CODE) {
+                resetFactoryEEPROM();   // l'EEPROM devra avoir été dévérouillée en écriture préalablement
+            }            
          }    
         // _____________________________________________________
         // Recherche une nouvelle demande de sortie TOR
