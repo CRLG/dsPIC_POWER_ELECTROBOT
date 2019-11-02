@@ -218,7 +218,8 @@ void GestionReceptionI2C(unsigned char first, unsigned char data)
     // _________________________________
     case RX_CHECKSUM : 
       if (data == checksum) {
-        FinReceptionTrameValideI2C(); 
+        FinReceptionTrameValideI2C();
+        cptPerteComMaster = 0; // requête d'écriture valide -> le master i2c est bien présent 
       } 
       else {
         etat = RX_ERREUR;

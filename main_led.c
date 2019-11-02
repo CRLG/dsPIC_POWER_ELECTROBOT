@@ -102,8 +102,7 @@ tMoyenneGlissante Moyenne_CurrentOut1;
 tMoyenneGlissante Moyenne_CurrentOut2;    
 
 void CalculMoyenneGlissante(tMoyenneGlissante *moy, unsigned short new_value);
-
-unsigned int value1, value2, value3;
+void SwitchOffAllOutputs();
 
 
 /********************************* 
@@ -129,17 +128,8 @@ int main ( void )
  i2c1_init(dsPIC_reg[REG_I2C_8BITS_ADDRESS].val);  // restitution de la valeur configurée en EEPROM
  
  // A l'init, tous les moteurs sont éteints
- ControleSTOR1(0);
- ControleSTOR2(0);
- ControleSTOR3(0);
- ControleSTOR4(0);
- ControleSTOR5(0);
- ControleSTOR6(0);
- ControleSTOR7(0);
- ControleSTOR8(0);
+ SwitchOffAllOutputs();
 
- value1 = LectureEanaMoyennee(5);
- value3 = LectureEanaMoyennee(4);
 	/*  endless loop*/
 	while (FOREVER)
 	{
@@ -160,24 +150,21 @@ LEAVE_CRITICAL_SECTION_I2C()
 			timer_expired = 0;
 		}
 
-        // TODO : 
-        // Sur perte de communication, couper toutes les sorties
+        // Sur perte de communication, coupe toutes les sorties
+        if (perteComMaster) {
+            SwitchOffAllOutputs();
+        }
         
-		//AnalogInput[0] = getAnalog(0);
+        // Mesures et moyennes sur les entrées tension batterie et courants 
         CalculMoyenneGlissante(&Moyenne_BatteryVoltage, getAnalog(0));
         AnalogInput[0] = rawToPhysBatteryVoltage(Moyenne_BatteryVoltage.value);
         
-		//AnalogInput[1] = getAnalog(1);
         CalculMoyenneGlissante(&Moyenne_GlobalCurrent, getAnalog(1));
         AnalogInput[1] = rawToPhysGlobalCurrent(Moyenne_GlobalCurrent.value);
                 
-		//AnalogInput[2] = getAnalog(4);
-        //AnalogInput[2] = value3;
-        //LectureEanaMoyennee(4);
         CalculMoyenneGlissante(&Moyenne_CurrentOut1, getAnalog(4));
         AnalogInput[2] = rawToPhysCurrentOut1(Moyenne_CurrentOut1.value);
 
-        //AnalogInput[3] = getAnalog(5);
         CalculMoyenneGlissante(&Moyenne_CurrentOut2, getAnalog(5));
         AnalogInput[3] = rawToPhysCurrentOut2(Moyenne_CurrentOut2.value);
         
@@ -300,10 +287,6 @@ LEAVE_CRITICAL_SECTION_I2C()
             ControleSTOR7((ucval>>6)&0x01);            
             ControleSTOR8((ucval>>7)&0x01);            
          }
-
-
-
-
         // _____________________________________________________
         // Recherche une nouvelle demande de calibration 
         if (dsPIC_reg[REG_CALIB_BATTERY_VOLTAGE_PHYS_POINT_1_H].new_data && dsPIC_reg[REG_CALIB_BATTERY_VOLTAGE_PHYS_POINT_1_L].new_data){
@@ -593,6 +576,18 @@ void ControleSTOR7(unsigned char val)
 void ControleSTOR8(unsigned char val)
 {
     LATBbits.LATB15 = val;
+}
+// _______________________________________________________
+void SwitchOffAllOutputs()
+{
+    ControleSTOR1(0);
+    ControleSTOR2(0);
+    ControleSTOR3(0);
+    ControleSTOR4(0);
+    ControleSTOR5(0);
+    ControleSTOR6(0);
+    ControleSTOR7(0);
+    ControleSTOR8(0);
 }
 
 // _______________________________________________________
