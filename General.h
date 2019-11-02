@@ -42,6 +42,7 @@ typedef enum {
     REG_STOR_6,
     REG_STOR_7,
     REG_STOR_8,
+    REG_PORT_STOR_1to8,
     REG_STOR_PGED,
     REG_STOR_PGEC,
     REG_CALIB_BATTERY_VOLTAGE_PHYS_POINT_1_H,

@@ -202,16 +202,6 @@ LEAVE_CRITICAL_SECTION_I2C()
             saveEEPROM();  // l'EEPROM devra avoir été dévérouillée en écriture préalablement
          }    
         // _____________________________________________________
-        // Configuration adresse I2C
-        if (dsPIC_reg[REG_I2C_8BITS_ADDRESS].new_data) {
-ENTER_CRITICAL_SECTION_I2C()            
-            ucval = dsPIC_reg[REG_I2C_8BITS_ADDRESS].val;
-            dsPIC_reg[REG_I2C_8BITS_ADDRESS].new_data = 0;
-LEAVE_CRITICAL_SECTION_I2C()
-            EEPROM_values[EEPADDR_I2C_ADDRESS_8bits] = ucval;  // un reboot de la carte sera nécessaire. Pas de prise en compte immédiat pour ce changement
-            saveEEPROM();  // l'EEPROM devra avoir été dévérouillée en écriture préalablement
-         }    
-        // _____________________________________________________
         // Recherche une nouvelle demande de RAZ EEPROM à la configuration par défaut
         if (dsPIC_reg[REG_EEPROM_RESET_FACTORY].new_data) {
 ENTER_CRITICAL_SECTION_I2C()            
@@ -221,6 +211,15 @@ LEAVE_CRITICAL_SECTION_I2C()
             if (ucval == EEPROM_RESET_FACTORY_CODE) {
                 resetFactoryEEPROM();   // l'EEPROM devra avoir été dévérouillée en écriture préalablement
             }            
+         }    
+        // _____________________________________________________
+        // Recherche une nouvelle demande de sortie TOR
+        if (dsPIC_reg[REG_STOR_1].new_data) {
+ENTER_CRITICAL_SECTION_I2C()            
+            ucval = dsPIC_reg[REG_STOR_1].val;
+            dsPIC_reg[REG_STOR_1].new_data = 0;
+LEAVE_CRITICAL_SECTION_I2C()
+            ControleSTOR1(ucval);            
          }    
         // _____________________________________________________
         // Recherche une nouvelle demande de sortie TOR
@@ -285,6 +284,26 @@ ENTER_CRITICAL_SECTION_I2C()
 LEAVE_CRITICAL_SECTION_I2C()
             ControleSTOR8(ucval);            
          }
+        // _____________________________________________________
+        // Recherche une nouvelle demande des sorties d'un seul coup sous forme de port 
+        if (dsPIC_reg[REG_PORT_STOR_1to8].new_data) {
+ENTER_CRITICAL_SECTION_I2C()            
+            ucval = dsPIC_reg[REG_PORT_STOR_1to8].val;
+            dsPIC_reg[REG_PORT_STOR_1to8].new_data = 0;
+LEAVE_CRITICAL_SECTION_I2C()
+            ControleSTOR1((ucval>>0)&0x01);            
+            ControleSTOR2((ucval>>1)&0x01);            
+            ControleSTOR3((ucval>>2)&0x01);            
+            ControleSTOR4((ucval>>3)&0x01);            
+            ControleSTOR5((ucval>>4)&0x01);            
+            ControleSTOR6((ucval>>5)&0x01);            
+            ControleSTOR7((ucval>>6)&0x01);            
+            ControleSTOR8((ucval>>7)&0x01);            
+         }
+
+
+
+
         // _____________________________________________________
         // Recherche une nouvelle demande de calibration 
         if (dsPIC_reg[REG_CALIB_BATTERY_VOLTAGE_PHYS_POINT_1_H].new_data && dsPIC_reg[REG_CALIB_BATTERY_VOLTAGE_PHYS_POINT_1_L].new_data){
